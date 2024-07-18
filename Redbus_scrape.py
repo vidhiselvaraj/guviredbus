@@ -11,11 +11,6 @@ import pandas as pd
 from datetime import datetime
 #
 driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
-
-#website to scrape
-driver.get('https://www.redbus.in/online-booking/apsrtc/?utm_source=rtchometile')
-
-time.sleep(5)
 wait = WebDriverWait(driver, 10)
 
 def format_date(date1):     #date formatting
@@ -56,18 +51,19 @@ def Get_Bus_details():
     seat_avail = []
     a = 0
     b = 0
-    bus_start_date_elem = driver.find_element(By.CSS_SELECTOR,'input[id="searchDat"]')
-    print(bus_start_date_elem.get_attribute("value"))
-    bus_start_date_x = bus_start_date_elem.get_attribute("value")
-    bus_start_date=format_date(bus_start_date_x)
 
     time.sleep(5)
+
+    ##Scroll till end and get all the division with bus details
+
     for i in range(30):
+
         driver.execute_script("window.scrollTo(0,Math.max(document.documentElement.scrollHeight," + "document.body.scrollHeight,document.documentElement.clientHeight));");
         a +=1
         print("a",a)
         id = driver.find_elements(By.CSS_SELECTOR,'li[class="row-sec clearfix"]')
-        # time.sleep(3)
+
+    #Extract every bus details
     for i in id:
         b+=1
         print("b",b)
@@ -139,11 +135,19 @@ def Get_Bus_details():
     dict = {'Bus_name': bus_name, 'Bus_type': bus_type, 'Starting_time': time_start, 'Duration': time_duration, 'Reaching_time': time_end, 'Bus_rating': bus_rating, 'Bus_fare': bus_fare, 'Seat_avail':seat_avail}
 
     df = pd.DataFrame(dict)
+
+    #format date and time
+
+    bus_start_date_elem = driver.find_element(By.CSS_SELECTOR,'input[id="searchDat"]')
+    print(bus_start_date_elem.get_attribute("value"))
+    bus_start_date_x = bus_start_date_elem.get_attribute("value")
+    bus_start_date=format_date(bus_start_date_x)
+
     aday = dt.timedelta(days=1)
     df['Bus_route'] = current_bus_route
     df['Bus_route_link'] = current_bus_link
     df['Starting_date'] = bus_start_date
-    # df['Reaching_date'] = bus_start_date
+
 
     df['Starting_date_time']= pd.to_datetime(df['Starting_date'] + ' ' + df['Starting_time'])
     df['Reaching_date_time']= pd.to_datetime(df['Starting_date'] + ' ' + df['Reaching_time'])
@@ -160,8 +164,13 @@ def Get_Bus_details():
     # df.to_csv(r'C:\Users\vidhi\Desktop\ds\Bus_route_details_new.csv')
     return df
 
+#website to scrape
+
+driver.get('https://www.redbus.in/online-booking/apsrtc/?utm_source=rtchometile')
+time.sleep(5)
 
 bus_routes={}
+
 # i.text gives list of bus routes and get_attribute to get links
 bus_routes_elem= driver.find_elements(By.CSS_SELECTOR,'a[class="route"]')
 time.sleep(5)
@@ -186,22 +195,12 @@ for i in bus_routes:
 
     ###code to get bus details
     df2=Get_Bus_details()
-    # df1 = df1.append(df2)
-
     df1 = pd.concat([df1, df2], ignore_index=True)
 
-    #code to go back
-    # driver.back()
-    # driver.execute_script("window.history.go(-1)")
-    print("go back")
-
-    # driver.navigate().back()
-    # driver.navigate().to("http://www.example.com");
     driver.get('https://www.redbus.in/online-booking/apsrtc/?utm_source=rtchometile')
 
-
-    # wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div[class="D117_main D117_container"]')))
     time.sleep(5)
-    # driver.find_elements(By.CSS_SELECTOR,'div[class="D121_header_wrapper"]')
 
+
+#Write dataframe with bus details into csv file
 df1.to_csv(r'C:\Users\vidhi\Desktop\ds\Bus_route_details_new.csv')

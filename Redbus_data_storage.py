@@ -12,6 +12,21 @@ cursor = con.cursor()
 query="use MDE92"
 cursor.execute(query)
 
+#Query to create table for storing bus data
+query="""create table if not exists test_red_bus5(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                route_name varchar(100),
+                                route_link varchar(200),
+                                busname varchar(100),
+                                bustype varchar(200),
+                                departing_time DATETIME,
+                                duration varchar(50),
+                                reaching_time DATETIME,
+                                star_rating float,
+                                price decimal(10,2),
+                                seats_available INT)"""
+cursor.execute(query)
+con.commit()
+
 df=pd.read_csv(r'C:\Users\vidhi\Desktop\ds\Bus_route_details_new.csv')
 print(df.columns)
 # df = df.drop(['Unnamed: 0'],axis=1)
