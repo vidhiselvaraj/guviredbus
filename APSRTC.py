@@ -62,11 +62,12 @@ def Get_Bus_details():
     bus_start_date=format_date(bus_start_date_x)
 
     time.sleep(5)
-    for i in range(3):
+    for i in range(30):
         driver.execute_script("window.scrollTo(0,Math.max(document.documentElement.scrollHeight," + "document.body.scrollHeight,document.documentElement.clientHeight));");
         a +=1
         print("a",a)
         id = driver.find_elements(By.CSS_SELECTOR,'li[class="row-sec clearfix"]')
+        # time.sleep(3)
     for i in id:
         b+=1
         print("b",b)
@@ -156,8 +157,8 @@ def Get_Bus_details():
     print(df['Reaching_date_time'])
 
     # saving the dataframe
-    df.to_csv(r'C:\Users\vidhi\Desktop\ds\Bus_route_details_new.csv')
-    return True
+    # df.to_csv(r'C:\Users\vidhi\Desktop\ds\Bus_route_details_new.csv')
+    return df
 
 
 bus_routes={}
@@ -171,7 +172,7 @@ for i in bus_routes_elem:
 
 time.sleep(5)
 #
-
+df1 = pd.DataFrame(columns=[])
 for i in bus_routes:
     print(i)
     current_bus_route = i
@@ -184,11 +185,14 @@ for i in bus_routes:
     time.sleep(5)
 
     ###code to get bus details
-    x=Get_Bus_details()
+    df2=Get_Bus_details()
+    # df1 = df1.append(df2)
+
+    df1 = pd.concat([df1, df2], ignore_index=True)
 
     #code to go back
     # driver.back()
-    driver.execute_script("window.history.go(-1)")
+    # driver.execute_script("window.history.go(-1)")
     print("go back")
 
     # driver.navigate().back()
@@ -200,3 +204,4 @@ for i in bus_routes:
     time.sleep(5)
     # driver.find_elements(By.CSS_SELECTOR,'div[class="D121_header_wrapper"]')
 
+df1.to_csv(r'C:\Users\vidhi\Desktop\ds\Bus_route_details_new.csv')
