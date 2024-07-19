@@ -170,14 +170,33 @@ driver.get('https://www.redbus.in/online-booking/apsrtc/?utm_source=rtchometile'
 time.sleep(5)
 
 bus_routes={}
+for page in range (1,6):
 
-# i.text gives list of bus routes and get_attribute to get links
-bus_routes_elem= driver.find_elements(By.CSS_SELECTOR,'a[class="route"]')
-time.sleep(5)
+    print(page)
+    next_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'div[class="DC_117_pageTabs "]')))
+    time.sleep(5)
 
-#dictionary with route: href links
-for i in bus_routes_elem:
-    bus_routes[i.text]=i.get_attribute('href')
+    # i.text gives list of bus routes and get_attribute to get links
+    bus_routes_elem= driver.find_elements(By.CSS_SELECTOR,'a[class="route"]')
+    time.sleep(5)
+
+    #dictionary with route: href links
+    for i in bus_routes_elem:
+        bus_routes[i.text]=i.get_attribute('href')
+    if page<5:
+        xpath = '//*[@id="root"]/div/div[4]/div[12]/div[{}]'.format(page+1)
+
+        print(xpath)
+
+        next_button = wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        time.sleep(10)
+        try:
+            driver.find_element(By.XPATH,xpath).click()
+        except:
+            time.sleep(10)
+            driver.find_element(By.XPATH,xpath).click()
+
+
 
 time.sleep(5)
 #
@@ -186,21 +205,15 @@ for i in bus_routes:
     print(i)
     current_bus_route = i
     current_bus_link = bus_routes[i]
-    x = 'a[title="'+i+'"]'
-    print(x)
-    time.sleep(5)
-    element = driver.find_element(By.CSS_SELECTOR, x)
-    driver.execute_script("arguments[0].click();", element)
-    time.sleep(5)
 
+    time.sleep(5)
+    driver.get(current_bus_link)
     ###code to get bus details
     df2=Get_Bus_details()
     df1 = pd.concat([df1, df2], ignore_index=True)
-
-    driver.get('https://www.redbus.in/online-booking/apsrtc/?utm_source=rtchometile')
 
     time.sleep(5)
 
 
 #Write dataframe with bus details into csv file
-df1.to_csv(r'C:\Users\vidhi\Desktop\ds\Bus_route_details_new.csv')
+df1.to_csv(r'C:\Users\vidhi\Desktop\ds\Bus_route_details.csv')

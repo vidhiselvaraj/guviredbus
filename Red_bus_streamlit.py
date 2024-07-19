@@ -15,13 +15,16 @@ cursor = con.cursor()
 query="use MDE92"
 cursor.execute(query)
 
-#Bus route dropdown
+#Application header
 st.header("Red Bus scraping project")
 
+#design columns and add drop down in each column
 col1= st.columns([0.4,0.3,0.3])
 col2= st.columns([0.4,0.3,0.3])
 
-query="select distinct route_name from test_red_bus5"
+#Bus route dropdown
+
+query="select distinct route_name from Redbus_data"
 cursor.execute(query)
 Route_list =[]
 for data in cursor:
@@ -57,10 +60,10 @@ fare_option = col2[1].selectbox('Select the Bus fare range',Price_list)
 Time_list =['Any time','Before 12:00','12:00 to 17:00','17:00 to 20:00','After 20:00']
 time_option = col2[2].selectbox('Select the Bus time range',Time_list)
 
-####Selectinf data from table based on the selection made
+####Selecting data from table based on the route selection made
 #
 query="select busname,bustype,departing_time,duration,reaching_time,star_rating,price,seats_available " \
-      "from test_red_bus5 where route_name = '%s'" %route_option
+      "from Redbus_data where route_name = '%s'" %route_option
 
 cursor.execute(query)
 
@@ -68,7 +71,7 @@ df = pd.DataFrame(cursor.fetchall(),columns=['Bus Name','Bus Type','Departure Ti
 
 #==================filtering data based on dropdown selection
 
-#seat option  'Sleeper','Semi-sleeper','Seater'
+#seat option
 if seat_option == 'Sleeper':
     # df= df[(df["Bus Type"].str.lower().str.contains("sleeper")) and (~df["Bus Type"].str.lower.str.contains("Semi"))]
     df= df[(df["Bus Type"].str.contains("sleeper",case = False)) & (df["Bus Type"].str.contains("semi",case=False)==False)]
@@ -85,7 +88,7 @@ if ac_option == 'A/C':
 elif ac_option == 'Non A/C':
     df = df[(df["Bus Type"].str.contains("non",case=False)) ]
 
-#rating option  'Any rating','Less than 3','3 to 4','Greater than 4'
+#rating option
 if rating_option == 'Less than 3':
     df= df[(df["Rating"] < 3)]
 elif rating_option == '3 to 4':
@@ -93,7 +96,7 @@ elif rating_option == '3 to 4':
 elif rating_option == 'Greater than 4':
     df= df[(df["Rating"] >=4)]
 
-#pricing option  'All price range','Less than 500','500 to 800','800 to 1000','More than 1000'
+#pricing option
 if fare_option == 'Less than 500':
     df= df[(df["Price"] < 500)]
 elif fare_option == '500 to 800':
@@ -104,7 +107,7 @@ elif fare_option == 'More than 1000':
     df= df[(df["Price"] >=1000)]
 
 
-#Timing option  ''Any time','Before 12:00','12:00 to 17:00','17:00 to 20:00','After 20:00''
+#Timing option
 if time_option == 'Before 12:00':
     time_str = '12:00:00'
     time_obj = datetime.strptime(time_str, '%H:%M:%S').time()
@@ -126,5 +129,5 @@ elif time_option == 'After 20:00':
     time_obj = datetime.strptime(time_str, '%H:%M:%S').time()
     df= df[(df["Departure Time"].dt.time >= time_obj)]
 
-
+#Display filtered data
 st.dataframe(df)
